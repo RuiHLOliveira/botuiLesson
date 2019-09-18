@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>BotUI - Hello World</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/botui/build/botui.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/botui/build/botui-theme-default.css" />
+  </head>
+  <body>
+    <div class="botui-app-container" id="hello-world">
+      <bot-ui></bot-ui>
+    </div>
+    <script src="https://cdn.jsdelivr.net/vue/latest/vue.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/botui/build/botui.js"></script>
+    <script src="https://kit.fontawesome.com/886bf3cc12.js"></script>
+    <script>
+
+        const course = {
+            lessons: [
+                {
+                    lesson_id: 1,
+                    lesson_title: "what is html",
+                    contents: [
+                        {
+                            content_id: 1,
+                            content_type: "chat",
+                            content_text: "HTML is the standard markup language for creating Web pages."
+                        },
+                        {
+                            content_id: 2,
+                            content_type: "chat",
+                            content_text: 'HTML stands for Hyper Text Markup Language'
+                        },
+                        {
+                            content_id: 3,
+                            content_type: "chat",
+                            content_text: 'HTML describes the structure of a Web page'
+                        },
+                        {
+                            content_id: 9,
+                            content_type: "question",
+                            content_text: 'What type of language HTML is?',
+                            correct_response: 1,
+                            alternatives: [
+                                {
+                                    value: 1,
+                                    text: "1- the standard markup language used to build webpages"
+                                },
+                                {
+                                    value: 2,
+                                    text: "2- the standard language used to mark webpages"
+                                }
+                            ]
+                        },
+                        {
+                            content_id: 10,
+                            content_type: "question",
+                            content_text: 'For what HTML stands for?',
+                            correct_response: 2,
+                            alternatives: [
+                                {
+                                    value: 1,
+                                    text: "Hyper Text Mark Language"
+                                },
+                                {
+                                    value: 2,
+                                    text: "Hyper Text Markup Language"
+                                }
+                            ]
+                        },
+                        {
+                            content_id: 4,
+                            content_type: "chat",
+                            content_text: 'HTML consists of a series of elements'
+                        },
+                        {
+                            content_id: 5,
+                            content_type: "chat",
+                            content_text: 'HTML elements tell the browser how to display the content'
+                        },
+                        {
+                            content_id: 6,
+                            content_type: "chat",
+                            content_text: 'HTML elements are represented by tags'
+                        },
+                        {
+                            content_id: 7,
+                            content_type: "chat",
+                            content_text: 'HTML tags label pieces of content such as "heading", "paragraph", "table", and so on'
+                        },
+                        {
+                            content_id: 8,
+                            content_type: "chat",
+                            content_text: 'Browsers do not display the HTML tags, but use them to render the content of the page'
+                        },
+                    ]
+                },
+                {
+                    lesson_id: 2,
+                    lesson_title: "what is css"
+                }
+            ]
+        };
+
+        let calledCourse = 0;
+
+        let user = {
+            name: "fulaninho",
+            points: 0,
+            answers: []
+        }
+
+        let lesson = course.lessons[calledCourse];
+
+        let botui = new BotUI('hello-world');
+        const stdDelay = 500;
+
+        botui.message.add({
+            type: 'html',
+            content: 'Welcome to Lesson "<b>'+lesson.lesson_title+'</b>"!'
+        })
+        .then(async function () {
+            for (var i = 0, len = lesson.contents.length; i < len; i++) {
+                switch (lesson.contents[i].content_type) {
+                    case "chat":
+                        await botui.message.add({ //await pois o for deve aguardar o resultado desta operação antes de continuar
+                            delay: stdDelay,
+                            type: 'html',
+                            content: lesson.contents[i].content_text
+                        });
+                    break;
+                    case "question":
+                        await botui.message.add({ //await pois o for deve aguardar o resultado desta operação antes de continuar
+                            delay: stdDelay,
+                            type: 'html',
+                            content: '<b>QUESTION: '+lesson.contents[i].content_text+'</b>'
+                        })
+                        .then(async function(){
+                            await botui.action.button({ //await pois o usuario deve escolher primeiro antes do chat continuar.
+                                action: lesson.contents[i].alternatives
+                            })
+                            .then(function(response){
+                                user.answers[lesson.contents[i].content_id] = response.value;
+                                if(response.value === lesson.contents[i].correct_response){
+                                    user.points++;
+                                    botui.message.add({
+                                        delay: stdDelay/3,
+                                        type: 'html',
+                                        content: 'Correct! <i class="far fa-check-circle"></i> Keep going!'
+                                    });
+                                } else {
+                                    botui.message.add({
+                                        delay: stdDelay/3,
+                                        type: 'html',
+                                        content: 'Wrong answer <i class="far fa-times-circle"></i>... keep going!'
+                                    });
+                                }
+                            });
+                        });
+                        
+                    default:
+                    break;
+                }
+            }
+            
+        });
+    </script>
+  </body>
+</html>
