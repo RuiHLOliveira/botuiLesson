@@ -9,7 +9,7 @@
   </head>
   <body>
     <div class="botui-app-container" id="hello-world">
-      <bot-ui></bot-ui>
+        <bot-ui></bot-ui>
     </div>
     <script src="https://cdn.jsdelivr.net/vue/latest/vue.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/botui/build/botui.js"></script>
@@ -80,6 +80,18 @@
                             content_text: 'HTML elements tell the browser how to display the content'
                         },
                         {
+                            content_id: 4,
+                            content_type: "embed",
+                            content_text: 'https://www.youtube.com/embed/eNwzCDXzKCk',
+                            minimum_time: 10
+                        },
+                        {
+                            content_id: 4,
+                            content_type: "embed",
+                            content_text: 'curso.mp4',
+                            minimum_time: 5
+                        },
+                        {
                             content_id: 6,
                             content_type: "chat",
                             content_text: 'HTML elements are represented by tags'
@@ -138,6 +150,7 @@
                         })
                         .then(async function(){
                             await botui.action.button({ //await pois o usuario deve escolher primeiro antes do chat continuar.
+                                human: true,
                                 action: lesson.contents[i].alternatives
                             })
                             .then(function(response){
@@ -158,7 +171,25 @@
                                 }
                             });
                         });
-                        
+                    break;
+                    case "embed":
+                    
+                        await botui.message.add({ //await pois o for deve aguardar o resultado desta operação antes de continuar
+                            type: 'embed',
+                            content: lesson.contents[i].content_text
+                        }).then(async function(){
+                            await botui.action.button({ //await pois o usuario deve escolher primeiro antes do chat continuar.
+                                human: true,
+                                delay: lesson.contents[i].minimum_time*1000,
+                                action: [
+                                    {
+                                        value: 1,
+                                        text: 'i watched the video...'
+                                    }
+                                ]
+                            });
+                        });
+                    break;
                     default:
                     break;
                 }
